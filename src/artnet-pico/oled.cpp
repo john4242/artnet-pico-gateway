@@ -22,18 +22,27 @@ const unsigned char wifi_bmp [] PROGMEM = {
 OLED::OLED(int univA, const char* ssid) 
       : displayRef(display), universeA(univA), wifiNetwork(ssid) { }
 
-void OLED::_drawWifiLogo(void) {
-  displayRef.drawBitmap(
+void OLED::drawWifiLogo() {
+  if (_connectionState == ConnectionState::connected) {
+    displayRef.drawBitmap(
       (displayRef.width() - WIFI_ICON_WIDTH - 5), 5,
       wifi_bmp, WIFI_ICON_WIDTH, WIFI_ICON_HEIGHT, 1);
+  } else {
+    displayRef.fillRect((displayRef.width() - WIFI_ICON_WIDTH - 5), 5, WIFI_ICON_WIDTH, WIFI_ICON_HEIGHT, SSD1306_BLACK);
+  }
 }
 
-void OLED::_addNetworkName() {
+void OLED::drawNetworkName() {
   displayRef.println(wifiNetwork);
   displayRef.println();
 }
+void OLED::drawIPAddress() {
+  displayRef.print("IP: ");
+  displayRef.println(_ipAddress);
+  displayRef.println();
+}
 
-void OLED::_displayUniverseConfig() {
+void OLED::drawUniverseConfig() {
   char univA[4];
   String str;
   str = String(universeA);
@@ -42,18 +51,26 @@ void OLED::_displayUniverseConfig() {
   displayRef.setCursor(0, 42);
   displayRef.write("Output A - Univ ");
   displayRef.write(univA);
-  //displayRef.setCursor(0, 55);
-  //displayRef.write("Output B - Univ ");
-  //displayRef.write(univB);
-  displayRef.display();
 }
 
-void OLED::_displayCommonInfo() {
+void OLED::drawScreen() {
   displayRef.clearDisplay();
-  _drawWifiLogo();
   displayRef.drawLine(0, 35, displayRef.width(), 35, SSD1306_WHITE);
-  _displayUniverseConfig();
+  drawUniverseConfig();
   displayRef.setCursor(0, 5);
+  displayRef.write(
+    _connectionState == ConnectionState::connecting ? "Connecting..."
+    : _connectionState == ConnectionState::connected ? "Connected"
+    : "Error connecting"
+  );
+  if (_connectionState == ConnectionState::connected) {
+    drawIPAddress();
+  } else {
+    drawNetworkName();
+  }
+  displayRef.write("\n\n");
+  drawUniverseConfig();
+  displayRef.display();
 }
 
 void OLED::initDisplay() {
@@ -69,22 +86,17 @@ void OLED::initDisplay() {
 }
 
 void OLED::displayWifiConnecting() {
-  _displayCommonInfo();
-  displayRef.write("Connecting...\n\n");
-  _addNetworkName();
-  displayRef.display();
+  _connectionState = ConnectionState::connecting;
+  drawScreen();
 }
 
 void OLED::displayWifiError() {
-  _displayCommonInfo();
-  displayRef.write("Could not connect\n\n");
-  _addNetworkName();
-  displayRef.display();
+  _connectionState = ConnectionState::error;
+  drawScreen();
 }
 
 void OLED::displayWifiConnected(const char *ipAddress) {
-  _displayCommonInfo();
-  _addNetworkName();
-  displayRef.write(ipAddress);
-  displayRef.display();
+  _connectionState = ConnectionState::connected;
+  strncpy(_ipAddress, ipAddress, sizeof(_ipAddress) - 1);
+  drawScreen();
 }

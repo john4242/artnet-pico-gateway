@@ -2,15 +2,24 @@
 #define OLED_H
 #include <Adafruit_SSD1306.h>
 
+enum ConnectionState {
+  connecting,
+  connected,
+  error
+};
+
 class OLED {
   private:
     Adafruit_SSD1306& displayRef;
     int universeA;
     const char* wifiNetwork;
-    void _drawWifiLogo(void);
-    void _addNetworkName();
-    void _displayUniverseConfig();
-    void _displayCommonInfo();
+    char _ipAddress[20];
+    ConnectionState _connectionState = ConnectionState::connecting;
+    void drawWifiLogo();
+    void drawNetworkName();
+    void drawIPAddress();
+    void drawUniverseConfig();
+    void drawScreen();
 
   public:
     OLED(int univA, const char* ssid);

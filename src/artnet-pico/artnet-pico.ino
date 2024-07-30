@@ -28,10 +28,10 @@
   | GND (Pin 8)    | GND  |
   -------------------------
   GND is Pin 3, 8, 13, 18, 23, 28, 33, or 38
-  3.3V is Pin 36
+  3.3V is Pin 36, you have to connect and share this with both
 
   Code by Janos Noll 2024-07-27
-  Ideas and original project taken and remixed from Taylor Mingos 10/18/2023
+  The reworked and remixed original project is by Taylor Mingos 10/18/2023
 */
 
 #include <Arduino.h>
