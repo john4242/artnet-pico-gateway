@@ -147,7 +147,7 @@ void setAllChannelsToZero() {
 }
 
 // Some DMX software (QLC+) can only send a packet once a second over the network
-// lights might turn off after a delay
+// but lights might turn off after a 0.1-0.5s delay
 // to make things easier, we will hold the last packet and keep sending it for a bit
 void writeHoldPacketIfNeeded() {
   if (millis() - 100 > lastMillisDmxPortSent[0]) {

@@ -34,10 +34,9 @@ void OLED::drawWifiLogo() {
 
 void OLED::drawNetworkName() {
   displayRef.println(wifiNetwork);
-  displayRef.println();
 }
 void OLED::drawIPAddress() {
-  displayRef.print("IP: ");
+  displayRef.print("IP:");
   displayRef.println(_ipAddress);
   displayRef.println();
 }
@@ -47,7 +46,6 @@ void OLED::drawUniverseConfig() {
   String str;
   str = String(universeA);
   str.toCharArray(univA, 4);
-
   displayRef.setCursor(0, 42);
   displayRef.write("Output A - Univ ");
   displayRef.write(univA);
@@ -56,20 +54,22 @@ void OLED::drawUniverseConfig() {
 void OLED::drawScreen() {
   displayRef.clearDisplay();
   displayRef.drawLine(0, 35, displayRef.width(), 35, SSD1306_WHITE);
-  drawUniverseConfig();
   displayRef.setCursor(0, 5);
   displayRef.write(
-    _connectionState == ConnectionState::connecting ? "Connecting..."
-    : _connectionState == ConnectionState::connected ? "Connected"
-    : "Error connecting"
+    _connectionState == ConnectionState::connecting ? "Connecting...\n\n"
+    : _connectionState == ConnectionState::connected ? ""
+    : "Error connecting\n"
   );
   if (_connectionState == ConnectionState::connected) {
+    drawNetworkName();
+    displayRef.println();
     drawIPAddress();
   } else {
     drawNetworkName();
   }
   displayRef.write("\n\n");
   drawUniverseConfig();
+  drawWifiLogo();
   displayRef.display();
 }
 
